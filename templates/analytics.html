@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    .analytics-card {
+        margin-bottom: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .chart-container {
+        height: 300px;
+        margin: 20px 0;
+    }
+    .stat-box {
+        padding: 15px;
+        border-radius: 8px;
+        background: #f8f9fa;
+        margin-bottom: 15px;
+    }
+    .stat-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #228B22;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Summary Statistics -->
+    <div class="col-12">
+        <div class="card analytics-card">
+            <div class="card-header">
+                <h5>Distribution Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="stat-box">
+                            <h6>Total Deliveries</h6>
+                            <div class="stat-value">{{ delivery_data|length }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-box">
+                            <h6>Areas Served</h6>
+                            <div class="stat-value">{{ areas_served }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-box">
+                            <h6>Total Food Distributed (kg)</h6>
+                            <div class="stat-value">{{ total_food_distributed|round|int }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-box">
+                            <h6>Average Rating</h6>
+                            <div class="stat-value">{{ average_rating|round(1) }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inventory Trends -->
+    <div class="col-md-6">
+        <div class="card analytics-card">
+            <div class="card-header">
+                <h5>Inventory Trends</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="inventoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delivery Performance -->
+    <div class="col-md-6">
+        <div class="card analytics-card">
+            <div class="card-header">
+                <h5>Delivery Performance</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="deliveryChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Analysis -->
+    <div class="col-md-12">
+        <div class="card analytics-card">
+            <div class="card-header">
+                <h5>Feedback Analysis</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <canvas id="feedbackChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="feedback-summary">
+                            <h6>Recent Feedback</h6>
+                            <div class="list-group">
+                                {% for feedback in recent_feedback %}
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between">
+                                        <span>{{ feedback.area_id }}</span>
+                                        <span>{{ "★" * feedback.rating }}</span>
+                                    </div>
+                                    <small class="text-muted">{{ feedback.timestamp }}</small>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Inventory Trends Chart
+const inventoryCtx = document.getElementById('inventoryChart').getContext('2d');
+new Chart(inventoryCtx, {
+    type: 'line',
+    data: {
+        labels: {{ inventory_dates|tojson|safe }},
+        datasets: {{ inventory_datasets|tojson|safe }}
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Delivery Performance Chart
+const deliveryCtx = document.getElementById('deliveryChart').getContext('2d');
+new Chart(deliveryCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ delivery_labels|tojson|safe }},
+        datasets: [{
+            label: 'Deliveries',
+            data: {{ delivery_data_chart|tojson|safe }},
+            backgroundColor: '#228B22'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+
+// Feedback Analysis Chart
+const feedbackCtx = document.getElementById('feedbackChart').getContext('2d');
+new Chart(feedbackCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['5★', '4★', '3★', '2★', '1★'],
+        datasets: [{
+            data: {{ feedback_distribution|tojson|safe }},
+            backgroundColor: [
+                '#28a745',
+                '#5cb85c',
+                '#ffc107',
+                '#dc3545',
+                '#dc3545'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Feedback{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Submit Feedback</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="area_id" class="form-label">Area</label>
+                        <select class="form-select" id="area_id" name="area_id" required>
+                            {% for area_id in areas %}
+                            <option value="{{ area_id }}">{{ area_id }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="rating" class="form-label">Rating</label>
+                        <select class="form-select" id="rating" name="rating" required>
+                            <option value="5">Excellent</option>
+                            <option value="4">Good</option>
+                            <option value="3">Average</option>
+                            <option value="2">Poor</option>
+                            <option value="1">Very Poor</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="comments" class="form-label">Comments</label>
+                        <textarea class="form-control" id="comments" name="comments" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Recent Feedback</h5>
+            </div>
+            <div class="card-body">
+                {% if feedback_history %}
+                <div class="list-group">
+                    {% for id, feedback in feedback_history.items() %}
+                    <div class="list-group-item">
+                        <h6>Area: {{ feedback.area_id }}</h6>
+                        <div>Rating: {{ "★" * feedback.rating }}</div>
+                        <p>{{ feedback.comments }}</p>
+                        <small class="text-muted">{{ feedback.timestamp }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p>No feedback submitted yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

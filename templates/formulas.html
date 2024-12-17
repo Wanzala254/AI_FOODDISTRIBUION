@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Scientific Formulas{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Scientific Distribution Formulas</h5>
+            </div>
+            <div class="card-body">
+                <!-- Nutritional Density Index -->
+                <div class="formula-box mb-4">
+                    <h6>Nutritional Density Index (NDI)</h6>
+                    <div class="formula">NDI = Σ(Ni × Wi) / (V × M)</div>
+                    <div class="variables">
+                        <strong>Where:</strong>
+                        <ul>
+                            <li>Ni = Nutrient content of item i</li>
+                            <li>Wi = Weight of item i</li>
+                            <li>V = Total volume</li>
+                            <li>M = Mass factor</li>
+                        </ul>
+                    </div>
+                    <div class="example">Example: (120 × 0.8 + 85 × 0.6) / (100 × 0.9) = 1.73</div>
+                </div>
+
+                <!-- Transportation Efficiency -->
+                <div class="formula-box mb-4">
+                    <h6>Transportation Efficiency Coefficient (TEC)</h6>
+                    <div class="formula">TEC = (M × D) / (F × t × √T)</div>
+                    <div class="variables">
+                        <strong>Where:</strong>
+                        <ul>
+                            <li>M = Mass transported (kg)</li>
+                            <li>D = Distance (km)</li>
+                            <li>F = Fuel consumption</li>
+                            <li>t = Time taken</li>
+                            <li>T = Temperature factor</li>
+                        </ul>
+                    </div>
+                    <div class="example">Example: (1000 × 150) / (45 × 8 × √30) = 71.82</div>
+                </div>
+
+                <!-- Storage Optimization -->
+                <div class="formula-box mb-4">
+                    <h6>Storage Optimization Factor (SOF)</h6>
+                    <div class="formula">SOF = (Cs × Ts × Es) / (Vt × Lt)</div>
+                    <div class="variables">
+                        <strong>Where:</strong>
+                        <ul>
+                            <li>Cs = Storage capacity</li>
+                            <li>Ts = Temperature stability</li>
+                            <li>Es = Energy efficiency</li>
+                            <li>Vt = Total volume</li>
+                            <li>Lt = Loss tolerance</li>
+                        </ul>
+                    </div>
+                    <div class="example">Example: (1000 × 0.95 × 0.88) / (800 × 0.05) = 20.9</div>
+                </div>
+
+                <!-- Food Perishability Index -->
+                <div class="formula-box mb-4">
+                    <h6>Food Perishability Index (FPI)</h6>
+                    <div class="formula">FPI = e^(-kt) × (1 - H/100) × (T/Tref)</div>
+                    <div class="variables">
+                        <strong>Where:</strong>
+                        <ul>
+                            <li>k = Decay constant</li>
+                            <li>t = Time in storage</li>
+                            <li>H = Humidity percentage</li>
+                            <li>T = Temperature</li>
+                            <li>Tref = Reference temperature</li>
+                        </ul>
+                    </div>
+                    <div class="example">Example: 2.718^(-0.02 × 24) × (1 - 65/100) × (20/25) = 0.245</div>
+                </div>
+
+                <!-- Quality Preservation -->
+                <div class="formula-box mb-4">
+                    <h6>Quality Preservation Factor (QPF)</h6>
+                    <div class="formula">QPF = Q0 × e^(-kt) × (1 - ΔT/Tc)</div>
+                    <div class="variables">
+                        <strong>Where:</strong>
+                        <ul>
+                            <li>Q0 = Initial quality</li>
+                            <li>k = Degradation rate</li>
+                            <li>t = Time</li>
+                            <li>ΔT = Temperature difference</li>
+                            <li>Tc = Critical temperature</li>
+                        </ul>
+                    </div>
+                    <div class="example">Example: 1.0 × 2.718^(-0.01 × 48) × (1 - 5/30) = 0.614</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .formula-box {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .formula {
+        font-family: "Courier New", monospace;
+        font-size: 1.3em;
+        padding: 15px;
+        background: white;
+        border-left: 4px solid #228B22;
+        margin: 15px 0;
+        text-align: center;
+    }
+    .variables {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 10px 0;
+    }
+    .variables ul {
+        list-style-type: none;
+        padding-left: 20px;
+    }
+    .variables li {
+        margin: 5px 0;
+        color: #444;
+    }
+    .example {
+        color: #666;
+        font-size: 0.9em;
+        padding: 10px;
+        border-top: 1px dashed #ddd;
+        margin-top: 10px;
+    }
+    h6 {
+        color: #228B22;
+        font-weight: bold;
+    }
+</style>
+{% endblock %} 

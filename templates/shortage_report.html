@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Report Shortage{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Report Food Shortage</h5>
+            </div>
+            <div class="card-body">
+                <form id="shortageForm">
+                    <div class="mb-3">
+                        <label for="area_id" class="form-label">Area</label>
+                        <select class="form-select" id="area_id" name="area_id" required>
+                            <option value="turkana">Turkana Region</option>
+                            <option value="marsabit">Marsabit Region</option>
+                            <option value="mandera">Mandera Region</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="severity" class="form-label">Severity Level</label>
+                        <select class="form-select" id="severity" name="severity" required>
+                            <option value="critical">Critical - Immediate Action Required</option>
+                            <option value="high">High - Urgent Action Required</option>
+                            <option value="medium">Medium - Action Required Soon</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Detailed Message</label>
+                        <textarea class="form-control" id="message" name="message" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-danger">Report Shortage</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Active Shortage Reports</h5>
+            </div>
+            <div class="card-body">
+                <div id="shortageUpdates">
+                    <!-- Shortage updates will be displayed here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('shortageForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    fetch('/report-shortage', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.success) {
+            alert('Shortage reported successfully. Relief team will be notified.');
+            location.reload();
+        }
+    });
+});
+
+// Update the shortage reports every 30 seconds
+setInterval(() => {
+    fetch('/distribution-updates')
+        .then(response => response.json())
+        .then(updates => {
+            const container = document.getElementById('shortageUpdates');
+            container.innerHTML = updates
+                .filter(update => update.status.includes('shortage'))
+                .map(update => `
+                    <div class="alert ${update.status === 'shortage-reported' ? 'alert-danger' : 'alert-warning'}">
+                        <strong>${update.location}</strong>: ${update.message}
+                        <small class="d-block">${new Date(update.timestamp).toLocaleString()}</small>
+                    </div>
+                `)
+                .join('');
+        });
+}, 30000);
+</script>
+{% endblock %} 

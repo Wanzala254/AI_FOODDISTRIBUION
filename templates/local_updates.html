@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Taarifa za Usambazaji - {{ area_id }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card kenya-theme">
+            <div class="card-header">
+                <h5>Taarifa za Usambazaji wa Chakula - {{ area_id }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="updates-panel">
+                    {% if updates %}
+                        {% for update in updates %}
+                            <div class="update-item">
+                                <div class="alert {% if update.status == 'arrived' %}alert-success{% elif update.status == 'in-transit' %}alert-info{% else %}alert-warning{% endif %}">
+                                    <h6 class="swahili-message">{{ update.message }}</h6>
+                                    <small class="text-muted">{{ update.timestamp }}</small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-center">Hakuna taarifa mpya kwa sasa</p>
+                    {% endif %}
+                </div>
+
+                <!-- Local Contact Information -->
+                <div class="mt-4">
+                    <h6>Mawasiliano ya Eneo Lako:</h6>
+                    <ul class="list-unstyled">
+                        <li>Simu ya Dharura: 0700-000-000</li>
+                        <li>Kituo cha Usambazaji: {{ area_id }} Distribution Center</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Auto-refresh updates every minute
+    setInterval(() => {
+        location.reload();
+    }, 60000);
+
+    // Play sound for new alerts (if supported)
+    function playAlertSound() {
+        const audio = new Audio('/static/alert.mp3');
+        audio.play().catch(e => console.log('Audio play failed:', e));
+    }
+
+    // Check for new updates every 30 seconds
+    setInterval(() => {
+        fetch('/distribution-updates')
+            .then(response => response.json())
+            .then(updates => {
+                const newUpdates = updates.filter(u => 
+                    u.location.toLowerCase() === '{{ area_id }}'.toLowerCase() &&
+                    new Date(u.timestamp) > lastUpdateTime
+                );
+                if (newUpdates.length > 0) {
+                    playAlertSound();
+                    location.reload();
+                }
+            });
+    }, 30000);
+</script>
+{% endblock %} 

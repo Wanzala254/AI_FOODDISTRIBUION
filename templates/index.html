@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="jumbotron">
+    <h1 class="display-4">AI-Driven Food Distribution System</h1>
+    <p class="lead">Efficiently managing food distribution to vulnerable populations</p>
+    <hr class="my-4">
+    <p>This system uses AI to optimize food distribution, predict demand, and manage inventory.</p>
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">For Recipients</h5>
+                    <p class="card-text">Confirm deliveries and provide feedback about the service.</p>
+                    <a href="/delivery-confirmation" class="btn btn-primary">Confirm Delivery</a>
+                    <a href="/feedback" class="btn btn-secondary">Give Feedback</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">For Administrators</h5>
+                    <p class="card-text">Monitor inventory, routes, and system analytics.</p>
+                    <a href="/dashboard" class="btn btn-primary">View Dashboard</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Distribution Routes</h5>
+                    <p class="card-text">View optimized delivery routes and schedules.</p>
+                    <a href="/distribution-routes" class="btn btn-primary">View Routes</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

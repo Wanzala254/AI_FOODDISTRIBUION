@@ -1,0 +1,439 @@
+{% extends "base.html" %}
+
+{% block title %}Distribution Routes - Kenya{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<style>
+    #map { height: 500px; }
+    .route-info {
+        background: white;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+    }
+    .route-details {
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 15px;
+    }
+    .distance-info {
+        font-size: 1.1em;
+        color: #228B22;
+        font-weight: bold;
+    }
+    .updates-panel {
+        max-height: 300px;
+        overflow-y: auto;
+        background: white;
+        padding: 15px;
+        border-radius: 5px;
+        margin-top: 15px;
+    }
+    .update-item {
+        padding: 10px;
+        border-left: 4px solid #228B22;
+        margin-bottom: 10px;
+        background: #f8f9fa;
+    }
+    .update-time {
+        color: #666;
+        font-size: 0.9em;
+    }
+    .location-badge {
+        background: #228B22;
+        color: white;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 0.9em;
+        margin-right: 5px;
+    }
+    .status-indicator {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 5px;
+    }
+    .status-in-transit { background-color: #ffc107; }
+    .status-arrived { background-color: #28a745; }
+    .status-delayed { background-color: #dc3545; }
+    .current-location {
+        background: #ff4444;
+        border-radius: 50%;
+        border: 2px solid white;
+        box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+    .location-info {
+        background: white;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card kenya-theme">
+            <div class="card-header">
+                <h5>Food Distribution Route: Nairobi to Turkana</h5>
+            </div>
+            <div class="card-body">
+                <!-- Distribution Updates Panel -->
+                <div class="updates-panel">
+                    <h6><i class="fas fa-bell"></i> Live Distribution Updates</h6>
+                    <div id="updates-container">
+                        <!-- Updates will be dynamically inserted here -->
+                    </div>
+                </div>
+
+                <div class="route-info">
+                    <h6>Route Details:</h6>
+                    <div class="distribution-center">Starting Point: Nairobi DC (-1.2921, 36.8219)</div>
+                    <div class="vulnerable-area">Destination: Turkana (3.1166, 35.5966)</div>
+                    <div class="route-details">
+                        <p><strong>Key Stops:</strong></p>
+                        <ul>
+                            <li>Nairobi → Nakuru</li>
+                            <li>Nakuru → Eldoret</li>
+                            <li>Eldoret → Kitale</li>
+                            <li>Kitale → Lodwar</li>
+                            <li>Lodwar → Turkana</li>
+                        </ul>
+                    </div>
+                </div>
+                <div id="map"></div>
+                <div class="location-info" id="locationInfo">
+                    <h6>Current Location:</h6>
+                    <p id="currentLocationText">Detecting location...</p>
+                    <p id="distanceToDestination"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    var map = L.map('map').setView([0.9, 36.2], 7);  // Centered between Nairobi and Turkana
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Define route waypoints (actual coordinates for the route)
+    var routePoints = [
+        [-1.2921, 36.8219],  // Nairobi
+        [-0.3031, 36.0800],  // Nakuru
+        [0.5143, 35.2698],   // Eldoret
+        [1.0167, 35.0024],   // Kitale
+        [3.1166, 35.5966]    // Turkana
+    ];
+
+    // Add markers for start and end points
+    var startIcon = L.divIcon({
+        className: 'distribution-center-icon',
+        html: '📦',
+        iconSize: [25, 25]
+    });
+
+    var endIcon = L.divIcon({
+        className: 'vulnerable-area-icon',
+        html: '🏘️',
+        iconSize: [25, 25]
+    });
+
+    // Add start marker (Nairobi)
+    L.marker([-1.2921, 36.8219], {icon: startIcon})
+        .addTo(map)
+        .bindPopup('<b>Start: Nairobi Distribution Center</b><br>Main Hub');
+
+    // Add end marker (Turkana)
+    L.marker([3.1166, 35.5966], {icon: endIcon})
+        .addTo(map)
+        .bindPopup('<b>Destination: Turkana</b><br>Vulnerable Area');
+
+    // Add markers for intermediate stops
+    var stopIcon = L.divIcon({
+        className: 'stop-icon',
+        html: '🔸',
+        iconSize: [20, 20]
+    });
+
+    // Add intermediate stops
+    L.marker([-0.3031, 36.0800], {icon: stopIcon}).addTo(map).bindPopup('Nakuru Stop');
+    L.marker([0.5143, 35.2698], {icon: stopIcon}).addTo(map).bindPopup('Eldoret Stop');
+    L.marker([1.0167, 35.0024], {icon: stopIcon}).addTo(map).bindPopup('Kitale Stop');
+
+    // Create the route line with animation effect
+    var routeLine = L.polyline(routePoints, {
+        color: '#bb0000',
+        weight: 3,
+        opacity: 0.8,
+        dashArray: '10, 10',
+        lineCap: 'round'
+    }).addTo(map);
+
+    // Animate the route line
+    var animatedRoute = L.polyline([], {
+        color: '#228B22',
+        weight: 4,
+        opacity: 0.8
+    }).addTo(map);
+
+    var i = 0;
+    function animateRoute() {
+        if (i < routePoints.length - 1) {
+            animatedRoute.addLatLng(routePoints[i]);
+            i++;
+            setTimeout(animateRoute, 1000);
+        }
+    }
+
+    // Start animation when map loads
+    map.on('load', function() {
+        setTimeout(animateRoute, 1000);
+    });
+
+    // Fit map to show the entire route
+    map.fitBounds(routeLine.getBounds(), {
+        padding: [50, 50]
+    });
+
+    // Add distance scale
+    L.control.scale({
+        imperial: false,
+        metric: true
+    }).addTo(map);
+
+    // Add real-time updates functionality
+    function formatTime(isoString) {
+        const date = new Date(isoString);
+        return date.toLocaleTimeString() + ' ' + date.toLocaleDateString();
+    }
+
+    function addUpdate(update) {
+        const container = document.getElementById('updates-container');
+        const updateHtml = `
+            <div class="update-item">
+                <span class="status-indicator status-${update.status.toLowerCase()}"></span>
+                <span class="location-badge">${update.location}</span>
+                <span class="update-message">${update.message}</span>
+                <div class="update-time">${formatTime(update.timestamp)}</div>
+            </div>
+        `;
+        container.insertAdjacentHTML('afterbegin', updateHtml);
+    }
+
+    // Simulate distribution updates
+    const updates = [
+        {
+            location: 'Nairobi DC',
+            status: 'arrived',
+            message: 'Distribution convoy loaded and ready for departure',
+            timestamp: new Date().toISOString()
+        },
+        {
+            location: 'Nakuru',
+            status: 'in-transit',
+            message: 'Convoy passing through Nakuru, all supplies secure',
+            timestamp: new Date(Date.now() - 1000*60*30).toISOString()
+        },
+        {
+            location: 'Eldoret',
+            status: 'in-transit',
+            message: 'Reached Eldoret, brief stop for vehicle check',
+            timestamp: new Date(Date.now() - 1000*60*60).toISOString()
+        }
+    ];
+
+    // Add initial updates
+    updates.forEach(addUpdate);
+
+    // Poll for new updates every 30 seconds
+    setInterval(() => {
+        fetch('/distribution-updates')
+            .then(response => response.json())
+            .then(newUpdates => {
+                newUpdates.forEach(addUpdate);
+            });
+    }, 30000);
+
+    // Function to add a new update (for demonstration)
+    function simulateNewUpdate() {
+        const locations = ['Kitale', 'Lodwar', 'Turkana'];
+        const statuses = ['in-transit', 'arrived', 'delayed'];
+        const messages = [
+            'Convoy proceeding as scheduled',
+            'Supplies successfully delivered',
+            'Short delay due to road conditions'
+        ];
+
+        const randomLocation = locations[Math.floor(Math.random() * locations.length)];
+        const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+        const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+
+        const update = {
+            location: randomLocation,
+            status: randomStatus,
+            message: randomMessage,
+            timestamp: new Date().toISOString()
+        };
+
+        fetch('/add-update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams(update)
+        }).then(() => addUpdate(update));
+    }
+
+    // Simulate new updates every 20 seconds (for demonstration)
+    setInterval(simulateNewUpdate, 20000);
+
+    // Create marker for current location
+    var currentLocationMarker = null;
+    var currentLocationCircle = null;
+    var watchId = null;
+
+    // Function to calculate distance between two points
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371; // Earth's radius in km
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                 Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                 Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
+    }
+
+    // Function to update location info
+    function updateLocationInfo(position) {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        const accuracy = position.coords.accuracy;
+
+        // Update or create location marker
+        if (currentLocationMarker) {
+            currentLocationMarker.setLatLng([lat, lon]);
+            currentLocationCircle.setLatLng([lat, lon]);
+            currentLocationCircle.setRadius(accuracy);
+        } else {
+            currentLocationMarker = L.marker([lat, lon], {
+                icon: L.divIcon({
+                    className: 'current-location',
+                    html: '📍',
+                    iconSize: [25, 25]
+                })
+            }).addTo(map);
+            
+            currentLocationCircle = L.circle([lat, lon], {
+                radius: accuracy,
+                color: '#ff4444',
+                fillColor: '#ff4444',
+                fillOpacity: 0.2
+            }).addTo(map);
+        }
+
+        // Calculate distance to destination (Turkana)
+        const distanceToTurkana = calculateDistance(
+            lat, lon,
+            routePoints[routePoints.length-1][0],
+            routePoints[routePoints.length-1][1]
+        );
+
+        // Update info display
+        document.getElementById('currentLocationText').innerHTML = 
+            `Latitude: ${lat.toFixed(4)}, Longitude: ${lon.toFixed(4)}`;
+        document.getElementById('distanceToDestination').innerHTML = 
+            `Distance to Turkana: ${distanceToTurkana.toFixed(1)} km`;
+
+        // Find nearest route point
+        let minDist = Infinity;
+        let nearestPoint = null;
+        routePoints.forEach((point, index) => {
+            const dist = calculateDistance(lat, lon, point[0], point[1]);
+            if (dist < minDist) {
+                minDist = dist;
+                nearestPoint = index;
+            }
+        });
+
+        // Update route progress
+        updateRouteProgress(nearestPoint);
+    }
+
+    // Function to handle location errors
+    function handleLocationError(error) {
+        let errorMessage;
+        switch(error.code) {
+            case error.PERMISSION_DENIED:
+                errorMessage = "Location access denied by user.";
+                break;
+            case error.POSITION_UNAVAILABLE:
+                errorMessage = "Location information unavailable.";
+                break;
+            case error.TIMEOUT:
+                errorMessage = "Location request timed out.";
+                break;
+            default:
+                errorMessage = "An unknown error occurred.";
+        }
+        document.getElementById('currentLocationText').innerHTML = errorMessage;
+    }
+
+    // Function to update route progress based on current location
+    function updateRouteProgress(nearestPointIndex) {
+        // Clear previous route
+        if (animatedRoute) {
+            animatedRoute.setLatLngs([]);
+        }
+
+        // Draw route up to current point
+        for (let i = 0; i <= nearestPointIndex; i++) {
+            animatedRoute.addLatLng(routePoints[i]);
+        }
+
+        // Update status message
+        const locations = ['Nairobi', 'Nakuru', 'Eldoret', 'Kitale', 'Turkana'];
+        const currentLocation = locations[nearestPointIndex];
+        
+        addUpdate({
+            location: currentLocation,
+            status: 'in-transit',
+            message: `Convoy currently near ${currentLocation}`,
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    // Start tracking location
+    if ("geolocation" in navigator) {
+        watchId = navigator.geolocation.watchPosition(
+            updateLocationInfo,
+            handleLocationError,
+            {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 0
+            }
+        );
+    } else {
+        document.getElementById('currentLocationText').innerHTML = 
+            "Geolocation is not supported by your browser.";
+    }
+
+    // Cleanup on page unload
+    window.onunload = function() {
+        if (watchId) {
+            navigator.geolocation.clearWatch(watchId);
+        }
+    };
+</script>
+{% endblock %} 

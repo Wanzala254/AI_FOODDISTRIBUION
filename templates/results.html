@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}System Results{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    .results-card {
+        margin-bottom: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .chart-container {
+        height: 400px;
+        margin: 20px 0;
+    }
+    .results-table {
+        margin-top: 20px;
+    }
+    .summary-box {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+    }
+    .metric-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #228B22;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Overall Performance Metrics -->
+    <div class="col-12">
+        <div class="card results-card">
+            <div class="card-header">
+                <h5>System Performance Overview</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="summary-box">
+                            <h6>Total Deliveries</h6>
+                            <div class="metric-value">{{ total_deliveries }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="summary-box">
+                            <h6>Success Rate</h6>
+                            <div class="metric-value">{{ (success_rate * 100)|round(1) }}%</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="summary-box">
+                            <h6>Average Response Time</h6>
+                            <div class="metric-value">{{ avg_response_time|round(1) }} hours</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="summary-box">
+                            <h6>Areas Covered</h6>
+                            <div class="metric-value">{{ areas_covered }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Distribution Map -->
+    <div class="col-12">
+        <div class="card results-card">
+            <div class="card-header">
+                <h5>Distribution Coverage Map</h5>
+            </div>
+            <div class="card-body">
+                <div id="coverage-map" style="height: 400px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delivery Performance -->
+    <div class="col-md-6">
+        <div class="card results-card">
+            <div class="card-header">
+                <h5>Delivery Performance by Region</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="deliveryChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resource Distribution -->
+    <div class="col-md-6">
+        <div class="card results-card">
+            <div class="card-header">
+                <h5>Resource Distribution</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="resourceChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Results Table -->
+    <div class="col-12">
+        <div class="card results-card">
+            <div class="card-header">
+                <h5>Detailed Results</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped results-table">
+                    <thead>
+                        <tr>
+                            <th>Region</th>
+                            <th>Total Deliveries</th>
+                            <th>Success Rate</th>
+                            <th>Average Response Time</th>
+                            <th>Population Served</th>
+                            <th>Resource Efficiency</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in detailed_results %}
+                        <tr>
+                            <td>{{ result.region }}</td>
+                            <td>{{ result.deliveries }}</td>
+                            <td>{{ (result.success_rate * 100)|round(1) }}%</td>
+                            <td>{{ result.response_time|round(1) }} hours</td>
+                            <td>{{ result.population|round(0) }}</td>
+                            <td>{{ (result.efficiency * 100)|round(1) }}%</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Delivery Performance Chart
+const deliveryCtx = document.getElementById('deliveryChart').getContext('2d');
+new Chart(deliveryCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ regions|tojson|safe }},
+        datasets: [{
+            label: 'Successful Deliveries',
+            data: {{ delivery_data|tojson|safe }},
+            backgroundColor: '#28a745'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Resource Distribution Chart
+const resourceCtx = document.getElementById('resourceChart').getContext('2d');
+new Chart(resourceCtx, {
+    type: 'pie',
+    data: {
+        labels: {{ resource_labels|tojson|safe }},
+        datasets: [{
+            data: {{ resource_distribution|tojson|safe }},
+            backgroundColor: [
+                '#28a745',
+                '#17a2b8',
+                '#ffc107',
+                '#dc3545',
+                '#6c757d'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+
+// Coverage Map
+const map = L.map('coverage-map').setView([0.9, 36.2], 6);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+}).addTo(map);
+
+// Add coverage data to map
+const coverageData = {{ coverage_data|tojson|safe }};
+coverageData.forEach(point => {
+    L.circle([point.lat, point.lng], {
+        color: point.success_rate > 0.8 ? '#28a745' : '#ffc107',
+        fillColor: point.success_rate > 0.8 ? '#28a745' : '#ffc107',
+        fillOpacity: 0.5,
+        radius: point.population * 10
+    }).addTo(map).bindPopup(
+        `<b>${point.region}</b><br>
+        Population: ${point.population}<br>
+        Success Rate: ${(point.success_rate * 100).toFixed(1)}%`
+    );
+});
+</script>
+{% endblock %} 

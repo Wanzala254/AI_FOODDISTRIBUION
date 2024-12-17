@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Simple Analytics{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Distribution Analytics Overview</h5>
+            </div>
+            <div class="card-body">
+                <!-- Basic Stats -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="alert alert-info">
+                            <h6>Total Deliveries</h6>
+                            <strong>37</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="alert alert-success">
+                            <h6>Areas Covered</h6>
+                            <strong>3</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="alert alert-warning">
+                            <h6>Success Rate</h6>
+                            <strong>87%</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Distribution Table -->
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Region</th>
+                                <th>Deliveries</th>
+                                <th>Population</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Turkana</td>
+                                <td>15</td>
+                                <td>926,976</td>
+                                <td><span class="badge bg-success">Active</span></td>
+                            </tr>
+                            <tr>
+                                <td>Kisii</td>
+                                <td>12</td>
+                                <td>1,266,860</td>
+                                <td><span class="badge bg-success">Active</span></td>
+                            </tr>
+                            <tr>
+                                <td>Marsabit</td>
+                                <td>10</td>
+                                <td>459,785</td>
+                                <td><span class="badge bg-success">Active</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

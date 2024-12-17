@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Shortages{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Active Shortage Reports - Nairobi DC Response Center</h5>
+            </div>
+            <div class="card-body">
+                <div id="activeShortages">
+                    <!-- Active shortages will be displayed here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function respondToShortage(areaId) {
+    const eta = prompt('Enter estimated arrival time (hours):');
+    if (eta) {
+        const formData = new FormData();
+        formData.append('area_id', areaId);
+        formData.append('response_type', 'convoy');
+        formData.append('estimated_arrival', eta);
+        
+        fetch('/respond-to-shortage', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                alert('Response initiated successfully');
+                location.reload();
+            }
+        });
+    }
+}
+
+// Update the shortage reports every 30 seconds
+setInterval(() => {
+    fetch('/distribution-updates')
+        .then(response => response.json())
+        .then(updates => {
+            const container = document.getElementById('activeShortages');
+            container.innerHTML = updates
+                .filter(update => update.status === 'shortage-reported')
+                .map(update => `
+                    <div class="alert alert-danger">
+                        <strong>${update.location}</strong>: ${update.message}
+                        <small class="d-block">${new Date(update.timestamp).toLocaleString()}</small>
+                        <button onclick="respondToShortage('${update.location}')" 
+                                class="btn btn-primary mt-2">
+                            Dispatch Relief Convoy
+                        </button>
+                    </div>
+                `)
+                .join('');
+        });
+}, 30000);
+</script>
+{% endblock %} 

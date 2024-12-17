@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Scientific Formulas{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Advanced Scientific Formulas for Food Distribution</h5>
+            </div>
+            <div class="card-body">
+                {% for key, formula in formulas.items() %}
+                <div class="formula-box mb-4">
+                    <h6 class="formula-title">{{ formula.name }}</h6>
+                    <div class="formula">
+                        {{ formula.formula }}
+                    </div>
+                    <div class="variables-box">
+                        <h6>Variables:</h6>
+                        <ul>
+                            {% for var, desc in formula.variables.items() %}
+                            <li><strong>{{ var }}</strong>: {{ desc }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="example-box">
+                        <h6>Example Calculation:</h6>
+                        <p>{{ formula.example }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .formula-box {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .formula-box:hover {
+        transform: translateY(-5px);
+    }
+    
+    .formula-title {
+        color: #228B22;
+        font-size: 1.2em;
+        font-weight: bold;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #228B22;
+        padding-bottom: 5px;
+    }
+    
+    .formula {
+        font-family: "Courier New", monospace;
+        font-size: 1.3em;
+        padding: 15px;
+        background: white;
+        border-left: 4px solid #228B22;
+        margin: 15px 0;
+        text-align: center;
+        border-radius: 5px;
+    }
+    
+    .variables-box {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+    }
+    
+    .variables-box h6 {
+        color: #228B22;
+        margin-bottom: 10px;
+    }
+    
+    .variables-box ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+    
+    .variables-box li {
+        margin: 8px 0;
+        padding-left: 15px;
+        border-left: 2px solid #ddd;
+    }
+    
+    .example-box {
+        background: #e7f5e7;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 15px;
+    }
+    
+    .example-box h6 {
+        color: #228B22;
+        margin-bottom: 10px;
+    }
+    
+    .example-box p {
+        font-family: "Courier New", monospace;
+        margin: 0;
+    }
+</style>
+{% endblock %} 

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Delivery Confirmation{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Confirm Delivery</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="area_id" class="form-label">Area</label>
+                        <select class="form-select" id="area_id" name="area_id" required>
+                            {% for area_id in areas %}
+                            <option value="{{ area_id }}">{{ area_id }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label">Received Quantity</label>
+                        <input type="number" class="form-control" id="quantity" name="quantity" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="condition" class="form-label">Condition of Delivery</label>
+                        <select class="form-select" id="condition" name="condition" required>
+                            <option value="excellent">Excellent</option>
+                            <option value="good">Good</option>
+                            <option value="fair">Fair</option>
+                            <option value="poor">Poor</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Confirm Delivery</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Recent Deliveries</h5>
+            </div>
+            <div class="card-body">
+                {% if confirmations %}
+                <div class="list-group">
+                    {% for id, confirmation in confirmations.items() %}
+                    <div class="list-group-item">
+                        <h6>Area: {{ confirmation.area_id }}</h6>
+                        <div>Quantity: {{ confirmation.received_quantity }}</div>
+                        <div>Condition: {{ confirmation.condition }}</div>
+                        <small class="text-muted">{{ confirmation.timestamp }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p>No deliveries confirmed yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

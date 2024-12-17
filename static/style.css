@@ -1,0 +1,86 @@
+:root {
+    --primary-color: #228B22;  /* Forest Green */
+    --secondary-color: #FFA500; /* Orange */
+    --accent-color: #FFD700;   /* Gold */
+    --bg-color: #F5F5F5;
+    --text-color: #333;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.navbar {
+    background-color: var(--primary-color) !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    border-radius: 10px;
+}
+
+.card-header {
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 10px 10px 0 0 !important;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-success {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+.alert-info {
+    background-color: var(--accent-color);
+    border: none;
+    color: var(--text-color);
+}
+
+.table {
+    background-color: white;
+    border-radius: 10px;
+}
+
+.badge {
+    padding: 8px 12px;
+    border-radius: 20px;
+}
+
+.jumbotron {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Kenya-themed styles */
+.kenya-theme {
+    border-top: 5px solid #000000;  /* Kenya flag colors */
+    border-bottom: 5px solid #bb0000;
+}
+
+.distribution-center {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.vulnerable-area {
+    background-color: var(--secondary-color);
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+} 

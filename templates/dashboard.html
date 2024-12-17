@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="alert alert-info">
+            Welcome to the Food Distribution System Dashboard
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Inventory Management -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Current Inventory Levels</h5>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Quantity</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item, quantity in inventory.items() %}
+                        <tr>
+                            <td>{{ item }}</td>
+                            <td>{{ quantity }}</td>
+                            <td>
+                                {% if quantity < 100 %}
+                                <span class="badge bg-danger">Low</span>
+                                {% elif quantity < 300 %}
+                                <span class="badge bg-warning">Medium</span>
+                                {% else %}
+                                <span class="badge bg-success">Good</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <a href="/inventory" class="btn btn-primary">Manage Inventory</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alerts -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Active Alerts</h5>
+            </div>
+            <div class="card-body">
+                {% if alerts %}
+                <ul class="list-group">
+                    {% for alert in alerts %}
+                    <li class="list-group-item list-group-item-warning">
+                        {{ alert.message }}
+                        <small class="text-muted d-block">{{ alert.timestamp }}</small>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p>No active alerts</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="col-12">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <a href="/delivery-confirmation" class="btn btn-primary btn-lg btn-block mb-2 w-100">
+                            Record Delivery
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="/distribution-routes" class="btn btn-success btn-lg btn-block mb-2 w-100">
+                            View Routes
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="/analytics" class="btn btn-info btn-lg btn-block mb-2 w-100">
+                            View Analytics
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="/results" class="btn btn-warning btn-lg btn-block mb-2 w-100">
+                            View Results
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="#" class="btn btn-info btn-lg btn-block mb-2 w-100" data-bs-toggle="modal" data-bs-target="#formulasModal">
+                            View Formulas
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Formulas Modal -->
+<div class="modal fade" id="formulasModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">System Formulas</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formulasForm" method="POST" action="/update_formulas">
+                    <div class="mb-3">
+                        <label class="form-label">Demand Prediction Formula</label>
+                        <input type="text" class="form-control" name="demand_formula" 
+                               value="Base Demand × (Population ÷ 1000) × (1 + Vulnerability Score ÷ 10)">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Resource Allocation Formula</label>
+                        <input type="text" class="form-control" name="allocation_formula"
+                               value="Required Quantity × (1 + Vulnerability Score ÷ 10)">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Distribution Score Formula</label>
+                        <input type="text" class="form-control" name="distribution_formula"
+                               value="(Delivery Success × 0.4) + (Coverage Rate × 0.2) + (Response Time × 0.2)">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

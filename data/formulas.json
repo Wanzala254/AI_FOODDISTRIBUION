@@ -1,0 +1,5 @@
+{
+    "demand_formula": "Base Demand \u00d7 (Population \u00f7 1000) \u00d7 (1 + Vulnerability Score \u00f7 10)",
+    "allocation_formula": "Required Quantity \u00d7 (1 + Vulnerability Score \u00f7 10)",
+    "distribution_formula": "(Delivery Success \u00d7 0.4) + (Coverage Rate \u00d7 0.2) + (Response Time \u00d7 0.2)"
+}
